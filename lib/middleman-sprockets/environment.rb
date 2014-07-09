@@ -18,7 +18,7 @@ module Middleman
         @app = app
         @debug_assets = options.fetch(:debug_assets, false)
 
-        super app.source_dir
+        super app.root
 
         # By default, sprockets has no cache! Give it an in-memory one using a Hash
         # There is also a Sprockets::Cache::FileStore option, but it is fraught with cache-invalidation
@@ -31,11 +31,17 @@ module Middleman
         unregister_bundle_processor 'application/javascript', :js_compressor
         unregister_bundle_processor 'text/css', :css_compressor
 
-        # configure search paths
-        append_path app.config[:js_dir]
-        append_path app.config[:css_dir]
-        append_path app.config[:images_dir]
-        append_path app.config[:fonts_dir]
+        # configure search paths for source
+        append_path File.join(source_path, app.config[:js_dir])
+        append_path File.join(source_path, app.config[:css_dir])
+        append_path File.join(source_path, app.config[:images_dir])
+        append_path File.join(source_path, app.config[:fonts_dir])
+
+        # configure search paths for shared source
+        append_path File.join(shared_source_path, app.config[:js_dir])
+        append_path File.join(shared_source_path, app.config[:css_dir])
+        append_path File.join(shared_source_path, app.config[:images_dir])
+        append_path File.join(shared_source_path, app.config[:fonts_dir])
 
         if app.config.respond_to?(:bower_dir)
           warn ":bower_dir is deprecated. Call sprockets.append_path from a 'ready' block instead."
