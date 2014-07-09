@@ -56,6 +56,9 @@ module Middleman
       add_assets_from_gems
 
       # Setup Sprockets Sass options
+      ::Sprockets::Sass.options[:load_paths] = [
+        File.join(app.root_path, app.config[:source], app.config[:css_dir]),
+        File.join(app.root_path, app.config[:shared_source], app.config[:css_dir])]
       if app.config.defines_setting?(:sass)
         app.config[:sass].each { |k, v| ::Sprockets::Sass.options[k] = v }
       end
