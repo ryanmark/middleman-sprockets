@@ -32,16 +32,16 @@ module Middleman
         unregister_bundle_processor 'text/css', :css_compressor
 
         # configure search paths for source
-        append_path File.join(source_path, app.config[:js_dir])
-        append_path File.join(source_path, app.config[:css_dir])
-        append_path File.join(source_path, app.config[:images_dir])
-        append_path File.join(source_path, app.config[:fonts_dir])
+        append_path File.join(app.config[:source], app.config[:js_dir])
+        append_path File.join(app.config[:source], app.config[:css_dir])
+        append_path File.join(app.config[:source], app.config[:images_dir])
+        append_path File.join(app.config[:source], app.config[:fonts_dir])
 
         # configure search paths for shared source
-        append_path File.join(shared_source_path, app.config[:js_dir])
-        append_path File.join(shared_source_path, app.config[:css_dir])
-        append_path File.join(shared_source_path, app.config[:images_dir])
-        append_path File.join(shared_source_path, app.config[:fonts_dir])
+        append_path File.join(app.config[:shared_source], app.config[:js_dir])
+        append_path File.join(app.config[:shared_source], app.config[:css_dir])
+        append_path File.join(app.config[:shared_source], app.config[:images_dir])
+        append_path File.join(app.config[:shared_source], app.config[:fonts_dir])
 
         if app.config.respond_to?(:bower_dir)
           warn ":bower_dir is deprecated. Call sprockets.append_path from a 'ready' block instead."
