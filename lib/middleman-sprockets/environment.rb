@@ -184,6 +184,11 @@ module Middleman
         super
       end
 
+      # Never return 304s, downstream may want to manipulate data.
+      def etag_match?(asset, env)
+        false
+      end
+
       def call(env)
         # Set the app current path based on the full URL so that helpers work
         request_path = URI.decode(File.join(env['SCRIPT_NAME'], env['PATH_INFO']))
@@ -214,6 +219,14 @@ module Middleman
           response = file.serving({})
           response[1]['Content-Type'] = resource.content_type
           return response
+        end
+
+        if resource
+          # incase the path has been rewrite, let sprockets know the original so it can find it
+          logical_path = resource.metadata.fetch(:options, {})
+                                          .fetch(:sprockets, {})
+                                          .fetch(:logical_path, nil)
+          env['PATH_INFO'] = logical_path.to_s if logical_path
         end
 
         super
