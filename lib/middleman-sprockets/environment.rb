@@ -1,3 +1,5 @@
+require "middleman-sprockets/asset"
+
 module Middleman
   module Sprockets
     # Generic Middleman Sprockets env
@@ -58,6 +60,18 @@ module Middleman
         if defined?(::Stylus)
           require 'stylus/sprockets'
           ::Stylus.setup(self, app.config[:styl])
+        end
+      end
+
+      # Make sure all the defined imported assets still exist
+      def prune_imported_assets!
+        @imported_assets = @imported_assets.select do |a|
+          begin
+            a = Middleman::Sprockets::Asset.new(@app, a.logical_path, self)
+            a.exist?
+          rescue
+            false
+          end
         end
       end
 
@@ -191,7 +205,9 @@ module Middleman
 
       def call(env)
         # Set the app current path based on the full URL so that helpers work
-        request_path = URI.decode(File.join(env['SCRIPT_NAME'], env['PATH_INFO']))
+        script_name = env['SCRIPT_NAME'].dup
+        script_name.gsub!(/^#{@app.config[:http_prefix]}/i, '') if @app.config[:http_prefix]
+        request_path = URI.decode(File.join(script_name, env['PATH_INFO']))
         if request_path.respond_to? :force_encoding
           request_path.force_encoding('UTF-8')
         end
@@ -238,7 +254,7 @@ module Middleman
         args << asset_logical_path
         args << determine_output_dir if block_given?
 
-        imported_assets << ImportedAsset.new(*args)
+        @imported_assets << ImportedAsset.new(*args)
 
         @app.sitemap.rebuild_resource_list!(:sprockets_import_asset)
       end
